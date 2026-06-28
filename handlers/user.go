@@ -109,10 +109,10 @@ func Login(c *gin.Context) {
 
 func GetUserById(c *gin.Context) {
 	var user dtos.UserRes
-	id_p := c.Param("id")
+	id_p := c.GetString("id")
 	err := database.DB.QueryRow("SELECT email , password FROM users WHERE id = ?", id_p).Scan(&user.Email, &user.Id)
 	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"msg": "Couldnt get user"})
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"msg": "Couldnt get user You are not authorised!"})
 		return
 	}
 	c.IndentedJSON(http.StatusOK, user)

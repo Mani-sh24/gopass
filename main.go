@@ -7,6 +7,7 @@ import (
 	"example/web-service-gin/database"
 	"example/web-service-gin/handlers"
 	"example/web-service-gin/helpers"
+	"example/web-service-gin/middleware"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -34,10 +35,15 @@ func main() {
 	{
 		auth := router.Group("/auth")
 		auth.POST("/register", handlers.CreateUser)
-		auth.GET("/getuser/:id", handlers.GetUserById)
 		auth.POST("/login", handlers.Login)
 	}
-	router.POST("/all", handlers.GetAllUsers)
+	{
+		protected := router.Group("/protected")
+		protected.Use(middleware.JWTMiddleware())
+		protected.POST("/all", handlers.GetAllUsers)
+		protected.GET("/getuser", handlers.GetUserById)
+
+	}
 
 	router.Run(":" + port)
 }
