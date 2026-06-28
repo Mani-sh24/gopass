@@ -5,14 +5,22 @@ import (
 	"os"
 
 	"example/web-service-gin/database"
+	_ "example/web-service-gin/docs" // Import swagger docs
 	"example/web-service-gin/handlers"
 	"example/web-service-gin/helpers"
 	"example/web-service-gin/middleware"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
+// @title           Gin Password Manager API
+// @version         1.0
+// @description     API for managing user registration, logins, and credential storage.
+// @host            localhost:8080
+// @BasePath        /
 func main() {
 	// Load environment variables from .env file if it exists
 	if err := godotenv.Load(); err != nil {
@@ -32,6 +40,10 @@ func main() {
 	}
 
 	router := gin.Default()
+
+	// Swagger route
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	{
 		auth := router.Group("/auth")
 		auth.POST("/register", handlers.CreateUser)
@@ -40,7 +52,6 @@ func main() {
 	{
 		protected := router.Group("/protected")
 		protected.Use(middleware.JWTMiddleware())
-		protected.POST("/all", handlers.GetAllUsers)
 		protected.GET("/getuser", handlers.GetUserById)
 
 	}

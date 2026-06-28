@@ -1,0 +1,347 @@
+basePath: /
+definitions:
+  dtos.AuthRes:
+    properties:
+      msg:
+        type: string
+      token:
+        type: string
+    type: object
+  dtos.MessageRes:
+    properties:
+      msg:
+        type: string
+    type: object
+  dtos.PasswordCreateReq:
+    properties:
+      email:
+        type: string
+      password:
+        maxLength: 100
+        minLength: 6
+        type: string
+      title:
+        maxLength: 100
+        minLength: 1
+        type: string
+    required:
+    - email
+    - password
+    - title
+    type: object
+  dtos.PasswordRes:
+    properties:
+      email:
+        type: string
+      id:
+        type: string
+      password:
+        type: string
+      title:
+        type: string
+      userId:
+        type: string
+    type: object
+  dtos.PasswordUpdateReq:
+    properties:
+      email:
+        type: string
+      password:
+        maxLength: 100
+        minLength: 6
+        type: string
+      title:
+        maxLength: 100
+        minLength: 1
+        type: string
+    type: object
+  dtos.UserLoginReq:
+    properties:
+      email:
+        type: string
+      mpin:
+        type: string
+      password:
+        maxLength: 50
+        minLength: 6
+        type: string
+    required:
+    - email
+    - mpin
+    - password
+    type: object
+  dtos.UserProfileRes:
+    properties:
+      email:
+        type: string
+      id:
+        type: string
+    type: object
+  dtos.UserRegisterReq:
+    properties:
+      email:
+        type: string
+      mpin:
+        type: string
+      password:
+        maxLength: 50
+        minLength: 6
+        type: string
+    required:
+    - email
+    - mpin
+    - password
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API for managing user registration, logins, and credential storage.
+  title: Gin Password Manager API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Verifies credentials and generates a session JWT Token
+      parameters:
+      - description: Login credentials
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.UserLoginReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.AuthRes'
+        "400":
+          description: Invalid input credentials
+          schema:
+            $ref: '#/definitions/dtos.MessageRes'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.MessageRes'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.MessageRes'
+      summary: Authenticate user
+      tags:
+      - Users
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user in the system
+      parameters:
+      - description: Registration payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.UserRegisterReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.AuthRes'
+        "400":
+          description: Could not create user
+          schema:
+            $ref: '#/definitions/dtos.MessageRes'
+      summary: Register a new user
+      tags:
+      - Users
+  /passwordcrud/all:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all password credential records belonging to the authenticated
+        user.
+      parameters:
+      - description: Bearer JWT_TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dtos.PasswordRes'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.MessageRes'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.MessageRes'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.MessageRes'
+      summary: List all password records
+      tags:
+      - Passwords
+  /passwordcrud/create:
+    post:
+      consumes:
+      - application/json
+      description: Create a password credential record for the authenticated user.
+      parameters:
+      - description: Bearer JWT_TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Password payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.PasswordCreateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.PasswordRes'
+        "400":
+          description: Could not create password
+          schema:
+            $ref: '#/definitions/dtos.MessageRes'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.MessageRes'
+      summary: Create password record
+      tags:
+      - Passwords
+  /passwordcrud/delete/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a specific password record by ID, verifying that it belongs
+        to the authenticated user.
+      parameters:
+      - description: Bearer JWT_TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Password Record ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Deleted
+          schema:
+            $ref: '#/definitions/dtos.MessageRes'
+        "400":
+          description: Could not delete password
+          schema:
+            $ref: '#/definitions/dtos.MessageRes'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.MessageRes'
+        "404":
+          description: Password not found or not authorized to delete
+          schema:
+            $ref: '#/definitions/dtos.MessageRes'
+      summary: Delete a password record
+      tags:
+      - Passwords
+  /passwordcrud/update/{id}:
+    patch:
+      consumes:
+      - application/json
+      description: Partially update a specific password record's title, email, or
+        password.
+      parameters:
+      - description: Bearer JWT_TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Password Record ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.PasswordUpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Password updated successfully
+          schema:
+            $ref: '#/definitions/dtos.MessageRes'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.MessageRes'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.MessageRes'
+        "404":
+          description: Password record not found or unauthorized
+          schema:
+            $ref: '#/definitions/dtos.MessageRes'
+      summary: Update a password record
+      tags:
+      - Passwords
+  /protected/getuser:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve the logged-in user profile info using the user ID loaded
+        from the JWT claims.
+      parameters:
+      - description: Bearer JWT_TOKEN
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.UserProfileRes'
+        "400":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.MessageRes'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.MessageRes'
+      summary: Get user profile
+      tags:
+      - Users
+swagger: "2.0"
