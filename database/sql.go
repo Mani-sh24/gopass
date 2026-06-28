@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"os"
 
 	_ "github.com/ncruces/go-sqlite3/driver"
 )
@@ -11,8 +12,13 @@ import (
 var DB *sql.DB
 
 func Connect_to_db() {
+	dbPath := os.Getenv("DB_PATH")
+	if dbPath == "" {
+		dbPath = ":memory:"
+	}
+
 	var err error
-	DB, err = sql.Open("sqlite3", "app.DB")
+	DB, err = sql.Open("sqlite3", dbPath)
 	if err != nil {
 		log.Fatal("Couldnt connect to DB")
 	}

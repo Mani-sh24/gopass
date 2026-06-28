@@ -5,6 +5,8 @@ go 1.26.4
 require github.com/gin-gonic/gin v1.12.0
 
 require (
+	github.com/golang-jwt/jwt/v5 v5.3.1 // indirect
+	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/ncruces/go-sqlite3-wasm/v3 v3.1.35302 // indirect
 	github.com/ncruces/julianday v1.0.0 // indirect
 )

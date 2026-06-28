@@ -1,0 +1,45 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool, consumed by `go tool cover`
+*.out
+
+# Dependency directories (only needed if you use folders instead of system package manager)
+# vendor/
+
+# Go workspace file
+go.work
+go.work.sum
+
+# SQLite databases
+app.DB
+*.db
+*.sqlite
+
+# IDEs/Editors
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+
+# Air temporary build directory
+tmp/
+
+
