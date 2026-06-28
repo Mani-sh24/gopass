@@ -35,12 +35,11 @@ func CreateUser(c *gin.Context) {
 	jwt_tok, err := helpers.GenerateJWT(id, new_user.Email)
 	// save the data in db and return the success message
 	_, err = database.DB.Exec(
-		"INSERT INTO users (id , email, password, mpin , enc_key) VALUES(?,?,?,?,?)",
+		"INSERT INTO users (id , email, password, mpin) VALUES(?,?,?,?)",
 		id,
 		new_user.Email,
 		password_hash,
 		mpin_hash,
-		new_user.Enc_Key,
 	)
 	// if for some reason the data is not saved in db send the error response
 	if err != nil {
@@ -76,34 +75,41 @@ func GetAllUsers(c *gin.Context) {
 }
 
 func Login(c *gin.Context) {
-	// todo compare exec too
 	var user_login schema.UserModel
 	if err := c.ShouldBindJSON(&user_login); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"msg": "Couldnt Login check valid credentials"})
 		return
 	}
-	var user dtos.UserReq
-	err := database.DB.QueryRow("Select email,password,mpin FROM users WHERE email = ? ", user_login.Email).Scan(&user.Email, &user.Password, &user.Mpin)
+	var dbID, dbEmail, dbPassword, dbMpin string
+	err := database.DB.QueryRow("Select id, email, password, mpin FROM users WHERE email = ? ", user_login.Email).Scan(&dbID, &dbEmail, &dbPassword, &dbMpin)
 	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"msg": err.Error()})
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"msg": "Invalid credentials"})
 		return
 	}
-	err = bcrypt.CompareHashAndPassword([]byte(user.Mpin), []byte(user_login.Mpin))
-	if err != nil {
-		c.IndentedJSON(http.StatusUnauthorized, gin.H{
-			"msg": "Invalid credentials",
-		})
-		return
-	}
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(user_login.Password))
+	err = bcrypt.CompareHashAndPassword([]byte(dbMpin), []byte(user_login.Mpin))
 	if err != nil {
 		c.IndentedJSON(http.StatusUnauthorized, gin.H{
 			"msg": "Invalid credentials",
 		})
 		return
 	}
-	c.IndentedJSON(http.StatusOK, gin.H{
-		"msg": "Login successful",
+	err = bcrypt.CompareHashAndPassword([]byte(dbPassword), []byte(user_login.Password))
+	if err != nil {
+		c.IndentedJSON(http.StatusUnauthorized, gin.H{
+			"msg": "Invalid credentials",
+		})
+		return
+	}
+	jwt_tok, err := helpers.GenerateJWT(dbID, dbEmail)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{
+			"msg": "Could not generate token",
+		})
+		return
+	}
+	c.IndentedJSON(http.StatusOK, dtos.UserSuccess{
+		Msg:   "Login successful",
+		Token: jwt_tok,
 	})
 }
 

@@ -44,6 +44,14 @@ func main() {
 		protected.GET("/getuser", handlers.GetUserById)
 
 	}
+	{
+		posts := router.Group("passwordcrud")
+		posts.Use(middleware.JWTMiddleware())
+		posts.POST("/create", handlers.CreatePassword)
+		posts.GET("/all", handlers.GetAllPasswords)
+		posts.DELETE("/delete/:id", handlers.DeletePassword)
+
+	}
 
 	router.Run(":" + port)
 }

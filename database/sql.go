@@ -35,12 +35,26 @@ func Init() {
 		id TEXT PRIMARY KEY NOT NULL,
 		email TEXT UNIQUE NOT NULL,
 		password TEXT NOT NULL,
-		mpin INT NOT NULL,
-		enc_key TEXT NOT NULL
+		mpin INT NOT NULL
 	);
 	`
 
 	_, err := DB.Exec(query)
+	if err != nil {
+		log.Fatal(err)
+	}
+	query = `
+	CREATE TABLE IF NOT EXISTS passwords(
+		id TEXT PRIMARY KEY NOT NULL,
+		user_id TEXT NOT NULL,
+		title TEXT NOT NULL,
+		email TEXT NOT NULL,
+		password TEXT NOT NULL,
+		FOREIGN KEY (user_id) REFERENCES users(id)
+	);
+	`
+
+	_, err = DB.Exec(query)
 	if err != nil {
 		log.Fatal(err)
 	}
