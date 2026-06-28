@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	schema "example/web-service-gin/Models"
 	"example/web-service-gin/database"
 	"example/web-service-gin/dtos"
 	"example/web-service-gin/helpers"
@@ -55,7 +54,7 @@ func GetAllUsers(c *gin.Context) {
 	rows, err := database.DB.Query("SELECT email , id FROM users") // Query will select every rows it will point at starting
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"msg": err.Error(),
+			"msg": "Could not retrieve users",
 		})
 		return
 	}
@@ -75,7 +74,7 @@ func GetAllUsers(c *gin.Context) {
 }
 
 func Login(c *gin.Context) {
-	var user_login schema.UserModel
+	var user_login dtos.UserLogin
 	if err := c.ShouldBindJSON(&user_login); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"msg": "Couldnt Login check valid credentials"})
 		return

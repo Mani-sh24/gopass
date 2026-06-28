@@ -50,6 +50,7 @@ func main() {
 		posts.POST("/create", handlers.CreatePassword)
 		posts.GET("/all", handlers.GetAllPasswords)
 		posts.DELETE("/delete/:id", handlers.DeletePassword)
+		posts.PATCH("/update/:id", handlers.UpdatePassword)
 
 	}
 
