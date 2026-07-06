@@ -5,4 +5,5 @@ type UserModel struct {
 	Email    string
 	Mpin     string
 	Password string
+	Salt     string
 }

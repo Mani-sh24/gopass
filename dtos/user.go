@@ -18,6 +18,7 @@ type UserLoginReq struct {
 type AuthRes struct {
 	Msg   string `json:"msg"`
 	Token string `json:"token"`
+	Salt  string `json:"salt,omitempty"`
 }
 
 // UserProfileRes defines the user profile response

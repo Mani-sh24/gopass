@@ -388,6 +388,9 @@ const docTemplate = `{
                 "msg": {
                     "type": "string"
                 },
+                "salt": {
+                    "type": "string"
+                },
                 "token": {
                     "type": "string"
                 }

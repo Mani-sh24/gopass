@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"example/web-service-gin/database"
 	"example/web-service-gin/dtos"
 	"example/web-service-gin/helpers"
@@ -46,13 +48,22 @@ func CreateUser(c *gin.Context) {
 		c.IndentedJSON(http.StatusBadRequest, dtos.MessageRes{Msg: "Couldnt create user"})
 		return
 	}
+	// Generate salt
+	saltBytes := make([]byte, 16)
+	if _, err := rand.Read(saltBytes); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, dtos.MessageRes{Msg: "Couldnt create user"})
+		return
+	}
+	salt := hex.EncodeToString(saltBytes)
+
 	// save the data in db and return the success message
 	_, err = database.DB.Exec(
-		"INSERT INTO users (id , email, password, mpin) VALUES(?,?,?,?)",
+		"INSERT INTO users (id , email, password, mpin, salt) VALUES(?,?,?,?,?)",
 		id,
 		new_user.Email,
 		password_hash,
 		mpin_hash,
+		salt,
 	)
 	// if for some reason the data is not saved in db send the error response
 	if err != nil {
@@ -60,7 +71,7 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 	// send the confirm message
-	c.IndentedJSON(http.StatusOK, dtos.AuthRes{Msg: "Success", Token: jwt_tok})
+	c.IndentedJSON(http.StatusOK, dtos.AuthRes{Msg: "Success", Token: jwt_tok, Salt: salt})
 }
 
 
@@ -82,8 +93,8 @@ func Login(c *gin.Context) {
 		c.IndentedJSON(http.StatusBadRequest, dtos.MessageRes{Msg: "Couldnt Login check valid credentials"})
 		return
 	}
-	var dbID, dbEmail, dbPassword, dbMpin string
-	err := database.DB.QueryRow("Select id, email, password, mpin FROM users WHERE email = ? ", user_login.Email).Scan(&dbID, &dbEmail, &dbPassword, &dbMpin)
+	var dbID, dbEmail, dbPassword, dbMpin, dbSalt string
+	err := database.DB.QueryRow("Select id, email, password, mpin, salt FROM users WHERE email = ? ", user_login.Email).Scan(&dbID, &dbEmail, &dbPassword, &dbMpin, &dbSalt)
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, dtos.MessageRes{Msg: "Invalid credentials"})
 		return
@@ -112,6 +123,7 @@ func Login(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, dtos.AuthRes{
 		Msg:   "Login successful",
 		Token: jwt_tok,
+		Salt:  dbSalt,
 	})
 }
 

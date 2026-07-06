@@ -35,7 +35,8 @@ func Init() {
 		id TEXT PRIMARY KEY NOT NULL,
 		email TEXT UNIQUE NOT NULL,
 		password TEXT NOT NULL,
-		mpin INT NOT NULL
+		mpin INT NOT NULL,
+		salt TEXT NOT NULL DEFAULT ''
 	);
 	`
 
@@ -43,6 +44,9 @@ func Init() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	// Migrate existing database to add salt column if missing
+	_, _ = DB.Exec("ALTER TABLE users ADD COLUMN salt TEXT NOT NULL DEFAULT ''")
 	query = `
 	CREATE TABLE IF NOT EXISTS passwords(
 		id TEXT PRIMARY KEY NOT NULL,

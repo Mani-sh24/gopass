@@ -4,6 +4,8 @@ definitions:
     properties:
       msg:
         type: string
+      salt:
+        type: string
       token:
         type: string
     type: object
