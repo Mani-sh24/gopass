@@ -26,7 +26,7 @@ All encryption and decryption happen strictly client-side. The server stores onl
 
 ## 🚀 Getting Started
 
-### 1. Backend Setup (Go Repository: [gopass](https://github.com/Mani-sh24/gopass))
+### 1. Backend Setup 
 
 The backend is built with Go, SQLite, and Gin, featuring Swagger documentation and automated migrations.
 
@@ -78,4 +78,3 @@ The Dev Server configures a proxy to automatically route `/auth`, `/passwordcrud
 ```bash
 npm run build
 ```
-Generates optimized static assets under `dist/` directory.
